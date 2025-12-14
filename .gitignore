@@ -1,0 +1,14 @@
+
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/terraform.tfvars
+
+
+*.pem
+
+
+app/server
+
+
+.DS_Store
