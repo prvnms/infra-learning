@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-web
+  template:
+    metadata:
+      labels:
+        app: go-web
+    spec:
+      imagePullSecrets:
+      - name: ecr-secret
+      containers:
+      - name: app
+        image: 880265510348.dkr.ecr.us-east-1.amazonaws.com/go-web:v1
+        ports:
+        - containerPort: 8080
