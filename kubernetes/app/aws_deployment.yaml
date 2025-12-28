@@ -16,6 +16,6 @@ spec:
       - name: ecr-secret
       containers:
       - name: app
-        image: 880265510348.dkr.ecr.us-east-1.amazonaws.com/go-web:v1
+        image: 123456789.dkr.ecr.us-east-1.amazonaws.com/go-web:v1
         ports:
         - containerPort: 8080
