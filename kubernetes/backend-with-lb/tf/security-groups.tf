@@ -93,5 +93,12 @@ resource "aws_security_group" "worker_nodes_sg" {
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
+    ingress {
+        description = "alb to access worker nodes"
+        from_port   = 31292
+        to_port     = 31292
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
 
 }

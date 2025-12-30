@@ -1,0 +1,23 @@
+cat <<EOF | sudo tee /etc/kubernetes/kubeadm-config.yaml
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: $(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+  bindPort: 6443
+nodeRegistration:
+  kubeletExtraArgs:
+    cloud-provider: external
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+kubernetesVersion: v1.29.0
+controlPlaneEndpoint: "$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):6443"
+networking:
+  podSubnet: "10.244.0.0/16" # Match this with your CNI (Flannel/Calico)
+apiServer:
+  extraArgs:
+    cloud-provider: external
+controllerManager:
+  extraArgs:
+    cloud-provider: external
+EOF

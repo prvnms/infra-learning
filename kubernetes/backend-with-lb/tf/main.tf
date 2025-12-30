@@ -22,7 +22,7 @@ resource "aws_vpc" "k8s_vpc" {
 
     tags = {
         Name = "k8s-vpc"
-        "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+        "kubernetes.io/cluster/${local.cluster_name}" = "owned"
     }
     }
 
@@ -35,7 +35,7 @@ resource "aws_subnet" "k8s_public_subnet" {
 
     tags = {
         Name                                          = "k8s-public-subnet"
-        "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+        "kubernetes.io/cluster/${local.cluster_name}" = "owned"
         "kubernetes.io/role/elb"                      = "1" # Required for Public LBs
     }
 }
