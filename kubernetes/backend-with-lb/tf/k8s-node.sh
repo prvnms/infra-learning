@@ -37,7 +37,8 @@ apt-mark hold kubelet kubeadm kubectl
 mkdir -p /etc/systemd/system/kubelet.service.d
 cat <<EOF > /etc/systemd/system/kubelet.service.d/20-aws.conf
 [Service]
-Environment="KUBELET_EXTRA_ARGS=--cloud-provider=external --provider-id=aws:///us-east-1a/$INSTANCE_ID"
+AZ=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+Environment="KUBELET_EXTRA_ARGS=--cloud-provider=external --provider-id=aws:///$AZ/$INSTANCE_ID"
 EOF
 
 systemctl daemon-reload

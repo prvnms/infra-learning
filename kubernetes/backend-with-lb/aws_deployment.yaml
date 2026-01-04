@@ -28,7 +28,7 @@ metadata:
   name: go-web-lb
   annotations:
     # This tells AWS to create a Public (Internet-facing) Load Balancer
-    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    # service.beta.kubernetes.io/aws-load-balancer-type: "external"
     service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
 spec:
   type: LoadBalancer

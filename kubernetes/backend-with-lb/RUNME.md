@@ -95,6 +95,7 @@ Run the **join command** shown at the end of `kubeadm init` on **each worker nod
 ```bash
 sudo kubeadm join <MASTER_IP>:6443 --token <token> \
     --discovery-token-ca-cert-hash sha256:<hash>
+    --kubelet-arg=cloud-provider=external
 ```
 
 ```bash

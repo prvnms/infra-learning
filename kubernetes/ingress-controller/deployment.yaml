@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-web
+  template:
+    metadata:
+      labels:
+        app: go-web
+    spec:
+      imagePullSecrets:
+      - name: ecr-secret
+      containers:
+      - name: app
+        image: 880265510348.dkr.ecr.us-east-1.amazonaws.com/go-web:v1
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-web-svc
+spec:
+  selector:
+    app: go-web
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-web-file
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-web-file
+  template:
+    metadata:
+      labels:
+        app: go-web-file
+    spec:
+      securityContext:
+        fsGroup: 65532        # This matches the 'nonroot' group in distroless
+        runAsUser: 65532
+        runAsNonRoot: true
+      imagePullSecrets:
+      - name: ecr-secret
+      containers:
+      - name: app
+        image: 880265510348.dkr.ecr.us-east-1.amazonaws.com/go-web-file:v3
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATA_PATH
+          value: /app/data
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+      volumes:
+      - name: data-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-web-file-svc
+spec:
+  selector:
+    app: go-web-file
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /srv(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: go-web-svc
+            port:
+              number: 80
+      - path: /fsrv(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: go-web-file-svc
+            port:
+              number: 80

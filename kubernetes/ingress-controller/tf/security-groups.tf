@@ -1,8 +1,7 @@
 resource "aws_security_group" "k8s_cluster_sg" {
     name        = "k8s-cluster-sg"
-    vpc_id = aws_vpc.k8s_vpc.id
     description = "K8s node communication"
-
+    vpc_id      = aws_vpc.k8s_vpc.id  # ← ADD THIS LINE
 
     ingress {
         description = "API server"
@@ -12,7 +11,6 @@ resource "aws_security_group" "k8s_cluster_sg" {
         self        = true
     }
 
-
     ingress {
         description = "kubelet"
         from_port   = 10250
@@ -20,7 +18,6 @@ resource "aws_security_group" "k8s_cluster_sg" {
         protocol    = "tcp"
         self        = true
     }
-
 
     ingress {
         description = "etcd"
@@ -30,15 +27,13 @@ resource "aws_security_group" "k8s_cluster_sg" {
         self        = true
     }
 
-
     ingress {
-        description = "NodePort from ELB"
+        description = "NodePort"
         from_port   = 30000
         to_port     = 32767
         protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        self        = true
     }
-
 
     ingress {
         description = "SSH internal"
@@ -56,8 +51,6 @@ resource "aws_security_group" "k8s_cluster_sg" {
         cidr_blocks = ["${var.my_ip}/32"]
     }
 
-
-
     egress {
         from_port   = 0
         to_port     = 0
@@ -66,11 +59,9 @@ resource "aws_security_group" "k8s_cluster_sg" {
     }
 }
 
-
 resource "aws_security_group" "control_plane_kubectl_sg" {
-    name = "control-plane-kubectl-sg"
-    vpc_id = aws_vpc.k8s_vpc.id
-
+    name   = "control-plane-kubectl-sg"
+    vpc_id = aws_vpc.k8s_vpc.id  # ← ADD THIS LINE
 
     ingress {
         description = "kubectl access"
@@ -80,24 +71,30 @@ resource "aws_security_group" "control_plane_kubectl_sg" {
         cidr_blocks = ["${var.my_ip}/32"]
     }
 
-}
-
-resource "aws_security_group" "worker_nodes_sg" {
-    name = "worker_nodes_sg"
-    vpc_id = aws_vpc.k8s_vpc.id
-
-    ingress {
-        description = "pod access port open to access appp"
-        from_port   = 30000
-        to_port     = 32767
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
     egress {
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
         cidr_blocks = ["0.0.0.0/0"]
     }
+}
 
+resource "aws_security_group" "worker_nodes_sg" {
+    name   = "worker_nodes_sg"
+    vpc_id = aws_vpc.k8s_vpc.id
+
+    ingress {
+        description = "pod access port open to access app"
+        from_port   = 30000
+        to_port     = 32767
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
 }
