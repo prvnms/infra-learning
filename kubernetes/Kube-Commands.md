@@ -30,9 +30,9 @@ kubectl get nodes
 ```bash
 docker build -t go-web-file:v2 .
 docker images | grep go-web-file
-docker tag go-web-file:v2 880265510348.dkr.ecr.us-east-1.amazonaws.com/go-web-file:v2
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 880265510348.dkr.ecr.us-east-1.amazonaws.com
-docker push 880265510348.dkr.ecr.us-east-1.amazonaws.com/go-web-file:v2
+docker tag go-web-file:v2 <aws-id>.dkr.ecr.us-east-1.amazonaws.com/go-web-file:v2
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <aws-id>.dkr.ecr.us-east-1.amazonaws.com
+docker push <aws-id>.dkr.ecr.us-east-1.amazonaws.com/go-web-file:v2
 aws ecr describe-images --repository-name go-web-file --region us-east-1
 ```
 
@@ -40,7 +40,7 @@ aws ecr describe-images --repository-name go-web-file --region us-east-1
 ```bash
 TOKEN=$(aws ecr get-login-password --region us-east-1)
 kubectl create secret docker-registry ecr-secret \
-  --docker-server=880265510348.dkr.ecr.us-east-1.amazonaws.com \
+  --docker-server=<aws-id>.dkr.ecr.us-east-1.amazonaws.com \
   --docker-username=AWS \
   --docker-password=$TOKEN
 kubectl get secret ecr-secret
