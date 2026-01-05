@@ -103,25 +103,12 @@ kubectl get nodes
 Without this, **CNI networking and CSI attach can fail**.
 
 Run on **ALL nodes (control + workers)**:
-
+Note: This is included in user script
 ```bash
 sudo iptables -P FORWARD ACCEPT
 sudo apt-get install -y iptables-persistent
 sudo netfilter-persistent save
 ```
-
-### 🔹 Recommended: Add to EC2 User Data
-
-Add this so every new VM works automatically:
-
-```bash
-#!/bin/bash
-iptables -P FORWARD ACCEPT
-apt-get update
-apt-get install -y iptables-persistent
-netfilter-persistent save
-```
-
 ---
 
 ## 5. AWS Security Group (Critical)

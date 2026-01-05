@@ -74,3 +74,8 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 # Enable kubelet (won't start until kubeadm init/join)
 ##################################
 systemctl enable kubelet
+
+iptables -P FORWARD ACCEPT
+apt-get update
+apt-get install -y iptables-persistent
+netfilter-persistent save
