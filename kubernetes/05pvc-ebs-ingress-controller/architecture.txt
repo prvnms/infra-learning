@@ -1,0 +1,9 @@
+Ingress (nginx)
+   |
+   ├── /srv  → Service → go-web (Deployment)
+   |
+   └── /fsrv → Headless Service → go-web-file (StatefulSet)
+                                  |
+                                  ├── Pod-0 → PVC-0 → EBS-0
+                                  ├── Pod-1 → PVC-1 → EBS-1
+                                  └── Pod-2 → PVC-2 → EBS-2

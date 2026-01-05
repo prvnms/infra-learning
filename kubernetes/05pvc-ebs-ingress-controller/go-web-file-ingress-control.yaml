@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /srv(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: go-web-svc
+            port:
+              number: 80
+      - path: /fsrv(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: go-web-file-svc
+            port:
+              number: 80

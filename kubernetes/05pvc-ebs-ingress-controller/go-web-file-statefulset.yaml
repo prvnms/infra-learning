@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: go-web-file
+spec:
+  serviceName: go-web-file
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-web-file
+  template:
+    metadata:
+      labels:
+        app: go-web-file
+    spec:
+      securityContext:
+        fsGroup: 65532
+        runAsUser: 65532
+        runAsNonRoot: true
+      imagePullSecrets:
+      - name: ecr-secret
+      containers:
+      - name: app
+        image: 880265510348.dkr.ecr.us-east-1.amazonaws.com/go-web-file:v3
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATA_PATH
+          value: /app/data
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: ebs-gp3
+      resources:
+        requests:
+          storage: 5Gi

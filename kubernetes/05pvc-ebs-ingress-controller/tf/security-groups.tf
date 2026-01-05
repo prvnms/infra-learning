@@ -1,0 +1,122 @@
+resource "aws_security_group" "k8s_cluster_sg" {
+    name        = "k8s-cluster-sg"
+    description = "K8s node communication"
+    vpc_id      = aws_vpc.k8s_vpc.id  # ← ADD THIS LINE
+
+    ingress {
+        description = "API server"
+        from_port   = 6443
+        to_port     = 6443
+        protocol    = "tcp"
+        self        = true
+    }
+
+    ingress {
+        description = "kubelet"
+        from_port   = 10250
+        to_port     = 10250
+        protocol    = "tcp"
+        self        = true
+    }
+
+    ingress {
+        description = "etcd"
+        from_port   = 2379
+        to_port     = 2380
+        protocol    = "tcp"
+        self        = true
+    }
+
+    ingress {
+        description = "NodePort"
+        from_port   = 30000
+        to_port     = 32767
+        protocol    = "tcp"
+        self        = true
+    }
+
+    ingress {
+        description = "SSH internal"
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        self        = true
+    }
+
+    ingress {
+        description = "SSH local to vm"
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_blocks = ["${var.my_ip}/32"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+resource "aws_security_group" "control_plane_kubectl_sg" {
+    name   = "control-plane-kubectl-sg"
+    vpc_id = aws_vpc.k8s_vpc.id  # ← ADD THIS LINE
+
+    ingress {
+        description = "kubectl access"
+        from_port   = 6443
+        to_port     = 6443
+        protocol    = "tcp"
+        cidr_blocks = ["${var.my_ip}/32"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+resource "aws_security_group" "worker_nodes_sg" {
+    name   = "worker_nodes_sg"
+    vpc_id = aws_vpc.k8s_vpc.id
+
+    ingress {
+        description = "pod access port open to access app"
+        from_port   = 30000
+        to_port     = 32767
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+# Temp
+
+# Allow all internal traffic between nodes (TCP, UDP, ICMP)
+resource "aws_security_group_rule" "allow_internal_all" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1" # -1 means all protocols
+  self              = true
+  security_group_id = aws_security_group.k8s_cluster_sg.id
+}
+
+# Explicitly ensure UDP 53 is open if not covered by the above
+resource "aws_security_group_rule" "allow_internal_udp" {
+  type              = "ingress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  self              = true
+  security_group_id = aws_security_group.k8s_cluster_sg.id
+}
