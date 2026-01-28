@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: task-service
+  template:
+    metadata:
+      labels:
+        app: task-service
+    spec:
+      imagePullSecrets:
+      - name: ecr-secret 
+      containers:
+      - name: task-service
+        image: 880265510348.dkr.ecr.us-east-1.amazonaws.com/task-service:latest
+        ports:
+        - containerPort: 50051
+        env:
+        - name: MONGO_URI
+          value: "mongodb://mongodb-0.mongodb:27017"
+        - name: GRPC_PORT
+          value: ":50051"
+        readinessProbe:
+          tcpSocket:
+            port: 50051
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-service
+spec:
+  selector:
+    app: task-service
+  ports:
+  - port: 50051
+    targetPort: 50051
